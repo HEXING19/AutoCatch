@@ -9,6 +9,7 @@ class ActionExecutor:
         pyautogui.FAILSAFE = True 
         screen_width, screen_height = pyautogui.size()
         self.screen_size = (screen_width, screen_height)
+        print(f"ActionExecutor initialized. Screen size: {self.screen_size}")
 
     def execute_action(self, action_plan: Dict[str, Any]):
         """
@@ -21,6 +22,7 @@ class ActionExecutor:
             if coords:
                 x = int(coords[0] * self.screen_size[0])
                 y = int(coords[1] * self.screen_size[1])
+                print(f"  -> Moving to relative {coords} -> absolute ({x}, {y})")
                 pyautogui.moveTo(x, y, duration=0.5)
                 pyautogui.click()
                 
