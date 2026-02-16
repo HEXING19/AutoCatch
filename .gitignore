@@ -1,0 +1,20 @@
+# Environment variables
+.env
+
+# Video files
+*.mov
+*.mp4
+*.avi
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Temporary files
+temp_frames/
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

@@ -69,42 +69,49 @@ class VideoProcessor:
                     keyframes.append((timestamp, frame_filename))
                     prev_frame_gray = gray
                     last_saved_frame = frame_filename
-            # Keep track of the last valid frame processed
-            last_valid_frame = frame_resized
-
+            # Keep a reference to the current frame to ensure we have the true last frame of the video
+            last_raw_frame = frame
+            
             frame_count += 1
         
         cap.release()
 
         # Ensure the very last frame is saved to capture the final state
-        # If the last valid frame exists and wasn't just saved as a keyframe
-        if 'last_valid_frame' in locals() and last_valid_frame is not None:
-             # Check if we should save it (simple logic: force save for now to capture end state)
-             # But prevent duplicate if it was literally just saved.
+        # Check if we have a valid last frame
+        if 'last_raw_frame' in locals() and last_raw_frame is not None:
+             # Process the raw last frame just like we do in the loop
+             height, width = last_raw_frame.shape[:2]
+             if width > 2048:
+                scale = 2048 / width
+                new_dim = (2048, int(height * scale))
+                frame_resized_end = cv2.resize(last_raw_frame, new_dim, interpolation=cv2.INTER_AREA)
+             else:
+                frame_resized_end = last_raw_frame
+
              timestamp_end = (frame_count - 1) / fps
              frame_filename_end = os.path.join(output_dir, f"frame_{timestamp_end:.2f}.jpg")
              
-             # Avoid saving the exact same file path again if the timestamps are identical (unlikely with float)
-             # or if the image content is identical to the last one.
-             # Let's just calculate difference one last time if we have a previous frame
+             # Calculate difference with the last *saved* frame (prev_frame_gray)
              should_force_save = False
              
              if prev_frame_gray is not None:
-                 last_gray = cv2.cvtColor(last_valid_frame, cv2.COLOR_BGR2GRAY)
+                 last_gray = cv2.cvtColor(frame_resized_end, cv2.COLOR_BGR2GRAY)
+                 # Re-using the resize logic for diff calculation if needed, but calculate_frame_difference handles resizing
                  score = self.calculate_frame_difference(prev_frame_gray, last_gray)
-                 # Even if difference is small, we might want to save it if enough time has passed?
-                 # User complaint is about "final action". Often the final state is static.
-                 # Let's force save if the difference is > 0 or if it's been a while since the last frame.
-                 # Actually, simplest fix for "missing final action" is to ALWAYS save the last frame 
-                 # unless it is visually identical (score == 0) to the previous keyframe.
+                 
+                 # Save if there is ANY difference or if it's the end. 
+                 # To be safe and satisfy the user's request about "missing end", we force save unless it interprets as identical.
+                 # Using a very low threshold.
                  if score > 0.001: 
                      should_force_save = True
+                 else:
+                     print(f"Final frame at {timestamp_end:.2f}s is identical to previous keyframe. Skipping.")
              else:
                  should_force_save = True
             
              if should_force_save:
                  print(f"Force saving final frame at {timestamp_end:.2f}s")
-                 cv2.imwrite(frame_filename_end, last_valid_frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+                 cv2.imwrite(frame_filename_end, frame_resized_end, [cv2.IMWRITE_JPEG_QUALITY, 80])
                  keyframes.append((timestamp_end, frame_filename_end))
 
         return keyframes

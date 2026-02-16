@@ -3,15 +3,15 @@ import google.generativeai as genai
 import os
 import json
 from typing import List, Dict, Any
-from config import GEMINI_API_KEY
+from config import GEMINI_API_KEY, MODEL_NAME
 
 class CognitiveEngine:
     def __init__(self):
         if not GEMINI_API_KEY:
             raise ValueError("GEMINI_API_KEY is required.")
         genai.configure(api_key=GEMINI_API_KEY)
-        # updated model name to gemini-3-flash-preview as requested
-        self.model = genai.GenerativeModel('gemini-3-flash-preview')
+        # Use model from config
+        self.model = genai.GenerativeModel(MODEL_NAME)
 
     def analyze_workflow(self, keyframe_paths: List[str]) -> List[Dict[str, Any]]:
         """

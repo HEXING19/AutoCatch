@@ -24,6 +24,11 @@ if not GEMINI_API_KEY:
     # Fallback or warning - for now we just print
     print("Warning: GEMINI_API_KEY not found in environment variables.")
 
+# Model Selection
+# Options: 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-2.0-flash-exp'
+MODEL_NAME = os.getenv("MODEL_NAME", "gemini-1.5-pro") 
+print(f"Using Model: {MODEL_NAME}")
+
 # Video Processing Config
 FRAME_SAMPLE_RATE = 0.5  # Extract 1 frame every 0.5 seconds for finer granularity
 MIN_SCENE_CHANGE_THRESHOLD = 0.01 # Lower threshold to detect subtle changes like typing
