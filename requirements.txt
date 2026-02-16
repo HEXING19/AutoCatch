@@ -1,0 +1,10 @@
+
+opencv-python
+moviepy
+numpy
+google-generativeai
+python-dotenv
+pyautogui
+pygetwindow
+Pillow
+PySocks

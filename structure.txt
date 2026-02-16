@@ -1,0 +1,12 @@
+requirements.txt
+.env
+main.py
+config.py
+core/
+    __init__.py
+    video.py
+    brain.py
+    executor.py
+utils/
+    __init__.py
+    visual.py
