@@ -37,18 +37,31 @@ class CognitiveEngine:
         2. Break it down into discrete, executable steps.
         3. For each step, determine the action type (click, type, wait, drag) and the approximate screen coordinates (0.0 to 1.0).
         
+        IMPORTANT: Use `pbcopy` and `Cmd+V` for text input to ensure correct characters.
+        
+        CRITICAL FOR TEXT INPUT:
+        - If the user is typing text, you MUST extract the EXACT text they intended to type.
+        - Pay close attention to the final state of the text field.
+        - If the user is typing Chinese (e.g., Pinyin inputs appearing), extract the FINAL Chinese characters, NOT the Pinyin.
+        - Example: If user types "henhao" and selects "很好", the text_content must be "很好".
+        - Example: If user types "henhuijiao" and selects "很会叫", the text_content must be "很会叫".
+        - DO NOT AUTOCORRECT. If the user types "很会叫" (meaning "good at barking/shouting"), do NOT change it to "很好" (very good). 
+        - Trust the visual evidence over semantic probability.
+        - If the text is ambiguous, prefer the literal characters shown in the candidate list or final commit.
+        
         Return a Pure JSON Array of objects (no markdown, no backticks). Each object must have:
         - "step_id": integer
         - "description": string (what is happening)
         - "action_type": string (click, type, wait, drag)
         - "coordinates": [x, y] (normalized 0-1, e.g. [0.5, 0.5] is center). If not applicable (e.g. typing), use null.
-        - "text_content": string (if typing, otherwise null)
+        - "text_content": string (if typing, otherwise null). MUST BE EXACT.
+        - "enter_keys": integer (number of times to press Enter AFTER typing/clicking. Default 0).
         - "visual_target": string (short description of the button/field)
 
         Example:
         [
-            {"step_id": 1, "description": "Click search bar", "action_type": "click", "coordinates": [0.2, 0.1], "text_content": null, "visual_target": "Search Input"},
-            {"step_id": 2, "description": "Type 'hello'", "action_type": "type", "coordinates": null, "text_content": "hello", "visual_target": null}
+            {"step_id": 1, "description": "Click search bar", "action_type": "click", "coordinates": [0.2, 0.1], "text_content": null, "enter_keys": 0, "visual_target": "Search Input"},
+            {"step_id": 2, "description": "Type 'hello' and press Enter", "action_type": "type", "coordinates": null, "text_content": "hello", "enter_keys": 1, "visual_target": null}
         ]
         """
         

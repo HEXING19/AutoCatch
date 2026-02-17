@@ -30,8 +30,8 @@ MODEL_NAME = os.getenv("MODEL_NAME", "gemini-1.5-pro")
 print(f"Using Model: {MODEL_NAME}")
 
 # Video Processing Config
-FRAME_SAMPLE_RATE = 0.5  # Extract 1 frame every 0.5 seconds for finer granularity
-MIN_SCENE_CHANGE_THRESHOLD = 0.01 # Lower threshold to detect subtle changes like typing
+FRAME_SAMPLE_RATE = 0.5  # Extract 1 frame every 1.0 seconds for finer granularity
+MIN_SCENE_CHANGE_THRESHOLD = 0.00005 # Lower threshold to detect subtle changes like typing (approx 0.0001 score)
 
 # Execution Config
 ActionDelay = 0.5 # Seconds between actions

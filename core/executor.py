@@ -29,7 +29,32 @@ class ActionExecutor:
         elif action_type == "type":
             text = action_plan.get("text_content")
             if text:
-                pyautogui.write(text, interval=0.1)
+                # Clear field first
+                # Select All (Command+A) and Backspace
+                pyautogui.hotkey("command", "a")
+                time.sleep(0.1)
+                pyautogui.press("backspace")
+                time.sleep(0.1)
+                
+                # Use clipboard to bypass IME issues
+                try:
+                    import subprocess
+                    process = subprocess.Popen('pbcopy', env={'LANG': 'en_US.UTF-8'}, stdin=subprocess.PIPE)
+                    process.communicate(text.encode('utf-8'))
+                    # mac specific paste
+                    pyautogui.hotkey("command", "v")
+                    time.sleep(0.1) # wait for paste
+                except Exception as e:
+                    print(f"Clipboard paste failed, falling back to type: {e}")
+                    pyautogui.write(text, interval=0.1)
+
+        # Handle explicit Enter key presses for ANY action type (type or click)
+        enter_keys = action_plan.get("enter_keys", 0)
+        if enter_keys and enter_keys > 0:
+            print(f"  -> Pressing Enter {enter_keys} time(s)")
+            for _ in range(enter_keys):
+                pyautogui.press("enter")
+                time.sleep(0.1)
                 
         elif action_type == "wait":
             time.sleep(2.0)
